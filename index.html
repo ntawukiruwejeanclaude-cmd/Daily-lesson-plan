@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CBC Lesson Plan Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    form label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    form input, form textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #lessonPlanOutput {
+      margin-top: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    table, th, td {
+      border: 1px solid #333;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #2c3e50;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>CBC Lesson Plan Generator</h1>
+
+  <form id="lessonForm">
+    <label>Subject:</label>
+    <input type="text" id="subject" required>
+
+    <label>Topic:</label>
+    <input type="text" id="topic" required>
+
+    <label>Duration:</label>
+    <input type="text" id="duration" required>
+
+    <label>Learning Objectives:</label>
+    <textarea id="objectives" required></textarea>
+
+    <label>Teaching Methods:</label>
+    <textarea id="methods" required></textarea>
+
+    <label>Learning Activities:</label>
+    <textarea id="activities" required></textarea>
+
+    <label>Assessment:</label>
+    <textarea id="assessment" required></textarea>
+
+    <label>Resources:</label>
+    <textarea id="resources" required></textarea>
+
+    <button type="submit">Generate Lesson Plan</button>
+  </form>
+
+  <button id="downloadPdf">Download Lesson Plan PDF</button>
+
+  <div id="lessonPlanOutput"></div>
+
+  <!-- jsPDF CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    let currentLessonPlan = {}; // store current lesson plan
+
+    document.getElementById('lessonForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const subject = document.getElementById('subject').value;
+      const topic = document.getElementById('topic').value;
+      const duration = document.getElementById('duration').value;
+      const objectives = document.getElementById('objectives').value;
+      const methods = document.getElementById('methods').value;
+      const activities = document.getElementById('activities').value;
+      const assessment = document.getElementById('assessment').value;
+      const resources = document.getElementById('resources').value;
+
+      currentLessonPlan = { subject, topic, duration, objectives, methods, activities, assessment, resources };
+      renderLessonPlan(currentLessonPlan);
+      this.reset(); // clear form
+    });
+
+    function renderLessonPlan(plan) {
+      const container = document.getElementById('lessonPlanOutput');
+      container.innerHTML = `
+        <h2>Lesson Plan</h2>
+        <table>
+          <tr><th>Subject</th><td>${plan.subject}</td></tr>
+          <tr><th>Topic</th><td>${plan.topic}</td></tr>
+          <tr><th>Duration</th><td>${plan.duration}</td></tr>
+          <tr><th>Learning Objectives</th><td>${plan.objectives}</td></tr>
+          <tr><th>Teaching Methods</th><td>${plan.methods}</td></tr>
+          <tr><th>Learning Activities</th><td>${plan.activities}</td></tr>
+          <tr><th>Assessment</th><td>${plan.assessment}</td></tr>
+          <tr><th>Resources</th><td>${plan.resources}</td></tr>
+        </table>
+      `;
+    }
+
+    // PDF Download
+    document.getElementById('downloadPdf').addEventListener('click', function() {
+      if (!currentLessonPlan.subject) {
+        alert("Please generate a lesson plan first!");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(16);
+      doc.text("CBC Lesson Plan", 10, 20);
+
+      doc.setFontSize(12);
+      const startY = 30;
+      const lineHeight = 10;
+      let y = startY;
+
+      Object.entries(currentLessonPlan).forEach(([key, value]) => {
+        doc.text(`${key.charAt(0).toUpperCase() + key.slice(1)}: ${value}`, 10, y);
+        y += lineHeight;
+      });
+
+      doc.save("CBC_Lesson_Plan.pdf");
+    });
+  </script>
+</body>
+</html>
